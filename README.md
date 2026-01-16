@@ -41,5 +41,13 @@ Press `i` to open the iOS simulator.
 
 ## Status
 - Expo Router running
-- Supabase connected and verified
-- Ready for authentication and database features
+- Supabase auth flow working (sign up, log in, sign out)
+- Session persistence enabled (stays logged in after reload)
+- Ready for grocery list features
+
+## Auth Flow (Current)
+- Start at `/` which redirects to `/signup` if logged out
+- `/signup` for new users (email + password)
+- `/login` for returning users
+- `/account` shows the signed-in email and allows sign out
+- Continue as Guest (local session) available on the landing page
