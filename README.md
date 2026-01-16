@@ -62,3 +62,7 @@ Press `i` to open the iOS simulator.
 - Calculates best store set for a chosen number of retailers
 - Only shows best plan results (raw price records are hidden)
 - Requires `product_prices` to be seeded with sample data in Supabase
+
+## UI (Current)
+- Landing screen uses Prox colors, serif headline, and gradient background
+- Sign Up / Log In / Continue as Guest actions are placed at the bottom
