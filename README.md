@@ -51,3 +51,8 @@ Press `i` to open the iOS simulator.
 - `/login` for returning users
 - `/account` shows the signed-in email and allows sign out
 - Continue as Guest (local session) available on the landing page
+
+## Groceries (Current)
+- `/groceries` screen with manual entry form and list view
+- Logged-in users store items in Supabase (`grocery_items`)
+- Guest users store items locally on device

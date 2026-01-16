@@ -51,6 +51,7 @@ export default function Account() {
       {!loading && isGuest ? <Text>Guest mode</Text> : null}
       {!loading && !isGuest && email ? <Text>Signed in as: {email}</Text> : null}
       {!loading && !isGuest && !email ? <Text>No user found.</Text> : null}
+      <Button title="Groceries" onPress={() => router.push('/groceries')} />
       <Button title="Sign Out" onPress={handleSignOut} />
       {message.length > 0 ? <Text>{message}</Text> : null}
     </View>

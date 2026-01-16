@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -6,6 +6,7 @@ import { supabase } from '../src/lib/supabase'
 
 export default function Home() {
   const router = useRouter()
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
     let isMounted = true
@@ -53,6 +54,11 @@ export default function Home() {
   }, [router])
 
   const handleContinueAsGuest = async () => {
+    const { data } = await supabase.auth.getSession()
+    if (data.session) {
+      setMessage('Sign out to continue as guest.')
+      return
+    }
     await AsyncStorage.setItem('guest_session', 'true')
     router.replace('/account')
   }
@@ -64,6 +70,7 @@ export default function Home() {
       <Button title="Sign Up" onPress={() => router.push('/signup')} />
       <Button title="Log In" onPress={() => router.push('/login')} />
       <Button title="Continue as Guest" onPress={handleContinueAsGuest} />
+      {message.length > 0 ? <Text>{message}</Text> : null}
     </View>
   )
 }
