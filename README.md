@@ -56,3 +56,9 @@ Press `i` to open the iOS simulator.
 - `/groceries` screen with manual entry form and list view
 - Logged-in users store items in Supabase (`grocery_items`)
 - Guest users store items locally on device
+
+## Prices (Current)
+- `/prices` screen loads grocery items and product price data
+- Calculates best store set for a chosen number of retailers
+- Only shows best plan results (raw price records are hidden)
+- Requires `product_prices` to be seeded with sample data in Supabase

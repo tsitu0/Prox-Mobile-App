@@ -28,6 +28,7 @@ export default function Groceries() {
   const [qty, setQty] = useState('')
   const [message, setMessage] = useState('')
   const [items, setItems] = useState<GroceryItem[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
   const [isGuest, setIsGuest] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -105,6 +106,16 @@ export default function Groceries() {
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => a.name.localeCompare(b.name))
   }, [items])
+
+  const filteredItems = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
+    if (!query) {
+      return sortedItems
+    }
+    return sortedItems.filter((item) =>
+      item.name.toLowerCase().includes(query)
+    )
+  }, [searchQuery, sortedItems])
 
   const saveGuestItems = async (nextItems: GroceryItem[]) => {
     await AsyncStorage.setItem(GUEST_ITEMS_KEY, JSON.stringify(nextItems))
@@ -252,8 +263,19 @@ export default function Groceries() {
 
       <View style={{ gap: 8 }}>
         <Text style={{ fontWeight: '600' }}>List View</Text>
-        {sortedItems.length === 0 && !loading ? <Text>No items yet.</Text> : null}
-        {sortedItems.map((item) => (
+        <TextInput
+          placeholder="Search items"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          style={{
+            borderWidth: 1,
+            borderColor: '#ccc',
+            padding: 12,
+            borderRadius: 8,
+          }}
+        />
+        {filteredItems.length === 0 && !loading ? <Text>No items yet.</Text> : null}
+        {filteredItems.map((item) => (
           <View
             key={item.id}
             style={{
