@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Button, ScrollView, Text, TextInput, View } from 'react-native'
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
+import { LinearGradient } from 'expo-linear-gradient'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { supabase } from '../src/lib/supabase'
 
@@ -20,10 +21,13 @@ const GUEST_ITEMS_KEY = 'guest_grocery_items'
 export default function Groceries() {
   const [name, setName] = useState('')
   const [size, setSize] = useState('')
-  const [category, setCategory] = useState<Category>('produce')
+  const [category, setCategory] = useState<Category | null>(null)
   const [categoryOpen, setCategoryOpen] = useState(false)
   const [categoryItems, setCategoryItems] = useState(
-    categories.map((option) => ({ label: option, value: option }))
+    categories.map((option) => ({
+      label: option.charAt(0).toUpperCase() + option.slice(1),
+      value: option,
+    }))
   )
   const [qty, setQty] = useState('')
   const [message, setMessage] = useState('')
@@ -129,6 +133,10 @@ export default function Groceries() {
       setMessage('Name is required.')
       return
     }
+    if (!category) {
+      setMessage('Category is required.')
+      return
+    }
     if (Number.isNaN(parsedQty) || parsedQty < 1) {
       setMessage('Quantity must be 1 or more.')
       return
@@ -176,6 +184,7 @@ export default function Groceries() {
     setName('')
     setSize('')
     setQty('')
+    setCategory(null)
     setSaving(false)
   }
 
@@ -202,102 +211,238 @@ export default function Groceries() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 24, gap: 16 }}>
-      <Text style={{ fontSize: 20, fontWeight: '600' }}>Grocery List</Text>
-      {loading ? <Text>Loading items...</Text> : null}
-      {!loading && isGuest ? <Text>Guest mode (saved locally)</Text> : null}
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#DFF6EF', '#BFEBDD', '#F4FBF8']}
+        start={{ x: 0, y: 0.2 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradient}
+      />
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+        <Text style={styles.kicker}>YOUR GROCERIES</Text>
+        <Text style={styles.title}>Grocery List</Text>
+        {loading ? <Text style={styles.statusText}>Loading items...</Text> : null}
+        {!loading && isGuest ? (
+          <Text style={styles.statusText}>Guest mode (saved locally)</Text>
+        ) : null}
 
-      <View style={{ gap: 8 }}>
-        <Text style={{ fontWeight: '600' }}>Add Item</Text>
-        <TextInput
-          placeholder="Name (required)"
-          value={name}
-          onChangeText={setName}
-          style={{
-            borderWidth: 1,
-            borderColor: '#ccc',
-            padding: 12,
-            borderRadius: 8,
-          }}
-        />
-        <TextInput
-          placeholder="Size (optional)"
-          value={size}
-          onChangeText={setSize}
-          style={{
-            borderWidth: 1,
-            borderColor: '#ccc',
-            padding: 12,
-            borderRadius: 8,
-          }}
-        />
-        <Text style={{ fontWeight: '600' }}>Category</Text>
-        <DropDownPicker
-          open={categoryOpen}
-          value={category}
-          items={categoryItems}
-          setOpen={setCategoryOpen}
-          setValue={setCategory}
-          setItems={setCategoryItems}
-          placeholder="Select a category"
-          listMode="SCROLLVIEW"
-          style={{ borderColor: '#ccc' }}
-          dropDownContainerStyle={{ borderColor: '#ccc' }}
-          zIndex={2000}
-        />
-        <TextInput
-          placeholder="Quantity"
-          value={qty}
-          onChangeText={setQty}
-          keyboardType="number-pad"
-          style={{
-            borderWidth: 1,
-            borderColor: '#ccc',
-            padding: 12,
-            borderRadius: 8,
-          }}
-        />
-        <Button title={saving ? 'Saving...' : 'Add Item'} onPress={handleAddItem} />
-        {message.length > 0 ? <Text>{message}</Text> : null}
-      </View>
-
-      <View style={{ gap: 8 }}>
-        <Text style={{ fontWeight: '600' }}>List View</Text>
-        <TextInput
-          placeholder="Search items"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          style={{
-            borderWidth: 1,
-            borderColor: '#ccc',
-            padding: 12,
-            borderRadius: 8,
-          }}
-        />
-        {filteredItems.length === 0 && !loading ? <Text>No items yet.</Text> : null}
-        {filteredItems.map((item) => (
-          <View
-            key={item.id}
-            style={{
-              borderWidth: 1,
-              borderColor: '#eee',
-              padding: 12,
-              borderRadius: 8,
-              gap: 4,
-            }}
-          >
-            <Text style={{ fontWeight: '600' }}>{item.name}</Text>
-            <Text>
-              {item.category} • {item.qty}
-              {item.size ? ` • ${item.size}` : ''}
-            </Text>
-            <Button
-              title={saving ? 'Working...' : 'Remove'}
-              onPress={() => handleRemoveItem(item.id)}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Add Item</Text>
+          <TextInput
+            placeholder="Name (required)"
+            placeholderTextColor="#7A948C"
+            value={name}
+            onChangeText={setName}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Size (optional)"
+            placeholderTextColor="#7A948C"
+            value={size}
+            onChangeText={setSize}
+            style={styles.input}
+          />
+          <Text style={styles.label}>Category</Text>
+          <View style={styles.dropdownWrap}>
+            <DropDownPicker
+              open={categoryOpen}
+              value={category}
+              items={categoryItems}
+              setOpen={setCategoryOpen}
+              setValue={setCategory as (val: Category | null) => void}
+              setItems={setCategoryItems}
+              placeholder="Select a category"
+              listMode="SCROLLVIEW"
+              style={styles.dropdown}
+              dropDownContainerStyle={styles.dropdownMenu}
+              textStyle={styles.dropdownText}
             />
           </View>
-        ))}
-      </View>
-    </ScrollView>
+          <TextInput
+            placeholder="Quantity"
+            placeholderTextColor="#7A948C"
+            value={qty}
+            onChangeText={setQty}
+            keyboardType="number-pad"
+            style={styles.input}
+          />
+          <Pressable
+            style={[styles.primaryButton, saving && styles.buttonDisabled]}
+            onPress={handleAddItem}
+            disabled={saving}
+          >
+            <Text style={styles.primaryButtonText}>
+              {saving ? 'Saving...' : 'Add Item'}
+            </Text>
+          </Pressable>
+          {message.length > 0 ? <Text style={styles.message}>{message}</Text> : null}
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>List View</Text>
+          <TextInput
+            placeholder="Search items"
+            placeholderTextColor="#7A948C"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            style={styles.input}
+          />
+          {filteredItems.length === 0 && !loading ? (
+            <Text style={styles.statusText}>No items yet.</Text>
+          ) : null}
+          {filteredItems.map((item) => (
+            <View key={item.id} style={styles.itemRow}>
+              <View style={styles.itemInfo}>
+                <Text style={styles.itemName}>{item.name}</Text>
+                <Text style={styles.itemMeta}>
+                  {item.category} • {item.qty}
+                  {item.size ? ` • ${item.size}` : ''}
+                </Text>
+              </View>
+              <Pressable
+                style={[styles.outlineButton, saving && styles.buttonDisabled]}
+                onPress={() => handleRemoveItem(item.id)}
+                disabled={saving}
+              >
+                <Text style={styles.outlineButtonText}>
+                  {saving ? 'Working...' : 'Remove'}
+                </Text>
+              </Pressable>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F4FBF8',
+  },
+  gradient: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 32,
+    gap: 16,
+  },
+  kicker: {
+    fontSize: 12,
+    letterSpacing: 2,
+    color: '#5C7D73',
+    fontFamily: 'Inter',
+  },
+  title: {
+    fontSize: 30,
+    lineHeight: 36,
+    color: '#0A4D3C',
+    fontFamily: 'CormorantGaramond',
+  },
+  statusText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#083B2E',
+    fontFamily: 'Inter',
+  },
+  card: {
+    borderRadius: 16,
+    padding: 16,
+    backgroundColor: '#F8FFFC',
+    borderWidth: 1,
+    borderColor: '#C9DED6',
+    gap: 10,
+  },
+  cardTitle: {
+    fontSize: 18,
+    color: '#0A4D3C',
+    fontFamily: 'CormorantGaramond',
+  },
+  label: {
+    fontSize: 13,
+    color: '#5C7D73',
+    fontFamily: 'Inter',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#C9DED6',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    fontFamily: 'Inter',
+  },
+  dropdownWrap: {
+    zIndex: 10,
+  },
+  dropdown: {
+    borderColor: '#C9DED6',
+    backgroundColor: '#FFFFFF',
+  },
+  dropdownMenu: {
+    borderColor: '#C9DED6',
+    backgroundColor: '#FFFFFF',
+  },
+  dropdownText: {
+    fontFamily: 'Inter',
+    color: '#083B2E',
+  },
+  primaryButton: {
+    backgroundColor: '#0FB872',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  primaryButtonText: {
+    color: '#F4FBF8',
+    fontSize: 16,
+    fontFamily: 'Inter',
+  },
+  outlineButton: {
+    borderWidth: 1,
+    borderColor: '#C9DED6',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+  },
+  outlineButtonText: {
+    color: '#0A4D3C',
+    fontSize: 12,
+    fontFamily: 'Inter',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  message: {
+    color: '#8A5E57',
+    fontSize: 12,
+    fontFamily: 'Inter',
+  },
+  itemRow: {
+    borderWidth: 1,
+    borderColor: '#E3EFE9',
+    borderRadius: 12,
+    padding: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 12,
+  },
+  itemInfo: {
+    flex: 1,
+    gap: 4,
+  },
+  itemName: {
+    fontSize: 16,
+    color: '#0A4D3C',
+    fontFamily: 'CormorantGaramond',
+  },
+  itemMeta: {
+    fontSize: 12,
+    color: '#083B2E',
+    fontFamily: 'Inter',
+  },
+})

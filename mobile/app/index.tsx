@@ -120,6 +120,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     gap: 12,
+    marginTop: 24,
+    marginBottom: 16,
   },
   brandRow: {
     flexDirection: 'row',
@@ -164,7 +166,7 @@ const styles = StyleSheet.create({
   tagline: {
     fontSize: 16,
     lineHeight: 22,
-    color: '#0A4D3C',
+    color: '#083B2E',
     fontFamily: 'Inter',
   },
   buttonStack: {
@@ -199,12 +201,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   ghostButtonText: {
-    color: '#0A4D3C',
+    color: '#083B2E',
     fontSize: 14,
     fontFamily: 'Inter',
   },
   message: {
-    color: '#0A4D3C',
+    color: '#083B2E',
     fontSize: 14,
     fontFamily: 'Inter',
   },

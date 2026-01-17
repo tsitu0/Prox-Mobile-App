@@ -64,5 +64,5 @@ Press `i` to open the iOS simulator.
 - Requires `product_prices` to be seeded with sample data in Supabase
 
 ## UI (Current)
-- Landing screen uses Prox colors, serif headline, and gradient background
-- Sign Up / Log In / Continue as Guest actions are placed at the bottom
+- Landing, Sign Up, Log In, Account, Groceries, and Prices screens use Prox colors, serif headlines, and soft gradients
+- Primary/secondary/ghost button styles are consistent across the app
