@@ -20,6 +20,13 @@ type ProductPrice = {
   size: string
 }
 
+type BestPlan = {
+  stores: string[]
+  total: number
+  items: Array<{ name: string; price: number; retailer: string; qty: number }>
+  missing: string[]
+}
+
 const GUEST_ITEMS_KEY = 'guest_grocery_items'
 
 export default function Prices() {
@@ -62,7 +69,7 @@ export default function Prices() {
 
   const storeCount = Math.max(1, Math.min(5, Number.parseInt(storeCountInput, 10) || 1))
 
-  const bestPlan = useMemo(() => {
+  const bestPlan = useMemo<BestPlan | null>(() => {
     if (normalizedItems.length === 0 || retailerList.length === 0) {
       return null
     }
@@ -84,12 +91,7 @@ export default function Prices() {
 
     buildCombos(0, [])
 
-    let best: {
-      stores: string[]
-      total: number
-      items: Array<{ name: string; price: number; retailer: string; qty: number }>
-      missing: string[]
-    } | null = null
+    let best: BestPlan | null = null
 
     combos.forEach((stores) => {
       let total = 0

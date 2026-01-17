@@ -16,18 +16,25 @@ type GroceryItem = {
   qty: number
 }
 
+type CategoryValue = Category | ''
+
 const GUEST_ITEMS_KEY = 'guest_grocery_items'
 
 export default function Groceries() {
   const [name, setName] = useState('')
   const [size, setSize] = useState('')
-  const [category, setCategory] = useState<Category | null>(null)
+  const [category, setCategory] = useState<CategoryValue>('')
   const [categoryOpen, setCategoryOpen] = useState(false)
-  const [categoryItems, setCategoryItems] = useState(
-    categories.map((option) => ({
-      label: option.charAt(0).toUpperCase() + option.slice(1),
-      value: option,
-    }))
+  const [categoryItems, setCategoryItems] = useState<
+    Array<{ label: string; value: CategoryValue }>
+  >(
+    [
+      { label: 'Select category', value: '' },
+      ...categories.map((option) => ({
+        label: option.charAt(0).toUpperCase() + option.slice(1),
+        value: option,
+      })),
+    ]
   )
   const [qty, setQty] = useState('')
   const [message, setMessage] = useState('')
@@ -150,7 +157,7 @@ export default function Groceries() {
         id: `${Date.now()}-${Math.random()}`,
         name: trimmedName,
         size: size.trim(),
-        category,
+        category: category as Category,
         qty: parsedQty,
       }
       const nextItems = [newItem, ...items]
@@ -163,7 +170,7 @@ export default function Groceries() {
           user_id: userId,
           name: trimmedName,
           size: size.trim(),
-          category,
+          category: category as Category,
           qty: parsedQty,
         })
         .select('id, name, size, category, qty')
@@ -184,7 +191,7 @@ export default function Groceries() {
     setName('')
     setSize('')
     setQty('')
-    setCategory(null)
+    setCategory('')
     setSaving(false)
   }
 
@@ -244,12 +251,12 @@ export default function Groceries() {
           />
           <Text style={styles.label}>Category</Text>
           <View style={styles.dropdownWrap}>
-            <DropDownPicker
+            <DropDownPicker<CategoryValue>
               open={categoryOpen}
               value={category}
               items={categoryItems}
               setOpen={setCategoryOpen}
-              setValue={setCategory as (val: Category | null) => void}
+              setValue={setCategory}
               setItems={setCategoryItems}
               placeholder="Select a category"
               listMode="SCROLLVIEW"
